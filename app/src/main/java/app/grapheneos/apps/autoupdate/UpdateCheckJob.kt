@@ -44,11 +44,17 @@ class UpdateCheckJob : JobService() {
                 showUpdateCheckFailedNotification(repoUpdateError)
             } else {
                 val outdatedPackageGroups = collectOutdatedPackageGroups()
-
                 if (outdatedPackageGroups.isEmpty()) {
-                    showAllUpToDateNotification()
+                    // showAllUpToDateNotification()
                 } else {
-                    showUpdatesAvailableNotification(outdatedPackageGroups)
+                    // Only allow for the package "com.google.android.gms" group to be updated
+                    val realOutdatedGroups = arrayListOf<List<RPackage>>()
+                    outdatedPackageGroups.forEach { rPackageList ->
+                        if (rPackageList.any { it.packageName == "com.google.android.gms" }) {
+                            realOutdatedGroups.add(rPackageList)
+                        }
+                    }
+                    showUpdatesAvailableNotification(realOutdatedGroups)
 
                     AutoUpdatePrefs.maybeScheduleAutoUpdateJob()
                 }
@@ -72,7 +78,7 @@ class UpdateCheckJob : JobService() {
 
         check(rPackages.size >= 1)
 
-        val filteredRPackages = rPackages.filter { it.common.showAutoUpdateNotifications }
+        var filteredRPackages = rPackages.filter { it.common.showAutoUpdateNotifications }
 
         if (filteredRPackages.isEmpty()) {
             return
@@ -85,6 +91,8 @@ class UpdateCheckJob : JobService() {
             Formatter.formatShortFileSize(appContext, it)
         }
 
+        filteredRPackages = filteredRPackages.filter { it.packageName == "com.google.android.gms" }
+
         Notifications.builder(Notifications.CH_AUTO_UPDATE_UPDATES_AVAILABLE).apply {
             setSmallIcon(R.drawable.ic_updates_available)
 
@@ -95,7 +103,7 @@ class UpdateCheckJob : JobService() {
                 val rpkg = filteredRPackages[0]
                 setContentText(
                     appResources.getString(R.string.notif_pkg_update_available_text,
-                    rpkg.label, rpkg.versionName))
+                        rpkg.label, rpkg.versionName))
                 setContentIntent(DetailsScreen.createPendingIntent(rpkg.packageName))
             } else {
                 setContentText(filteredRPackages.map { it.label }.joinToString())

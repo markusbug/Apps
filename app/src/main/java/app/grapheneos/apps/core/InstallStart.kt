@@ -206,9 +206,16 @@ fun collectOutdatedPackageGroups(): List<List<RPackage>> {
     // in the list
     fun maybeReplaceRPackage(rPackage: RPackage) {
         rPackagesToInstall[rPackage.packageName].let {
-            if (it == null || it.versionCode < rPackage.versionCode) {
-                rPackagesToInstall[rPackage.packageName] = rPackage
+            try {
+                if (it == null || it.versionCode < rPackage.versionCode) {
+                    if (rPackage.packageName == "com.google.android.gms") {
+                        rPackagesToInstall[rPackage.packageName] = rPackage
+                    }
+                }
+            } catch (e: Exception) {
+                // ignore
             }
+
         }
     }
 

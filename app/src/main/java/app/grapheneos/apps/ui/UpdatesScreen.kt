@@ -89,6 +89,8 @@ class UpdatesScreen : PackageListFragment<UpdatesScreenBinding>(), MenuProvider 
             it.isOutdated()
         }.sortedBy {
             it.rPackage.label
+        }.filter {
+            it.pkgName.startsWith("com.google.android") || it.pkgName.startsWith("app.grapheneos.gmscompat")
         }.let { list ->
             listAdapter.updateList(list)
         }

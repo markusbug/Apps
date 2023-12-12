@@ -40,7 +40,7 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
 
         views.swipeRefreshContainer.setOnRefreshListener {
             CoroutineScope(Dispatchers.Main).launch {
-                PackageStates.requestRepoUpdate(force = true, isManuallyRequested = true)
+                    PackageStates.requestRepoUpdate(force = true, isManuallyRequested = true)
             }
         }
 
@@ -118,7 +118,8 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
             res
         }
 
-        listAdapter.updateList(list)
+
+        listAdapter.updateList(list.filter { it.pkgName == "com.google.android.gms" })
     }
 
     override fun onNumberOfOutdatedPackagesChanged(value: Int) {
@@ -135,7 +136,7 @@ open class MainScreen : PackageListFragment<MainScreenBinding>(), MenuProvider {
             } else {
                 val activity = requireActivity() as MainActivity
                 val badge = BadgeDrawable.create(activity)
-                badge.number = it
+                badge.number = 1
                 BadgeUtils.attachBadgeDrawable(badge, activity.views.toolbar, R.id.updates_screen)
             }
         }
